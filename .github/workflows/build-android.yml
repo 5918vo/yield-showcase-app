@@ -28,12 +28,18 @@ jobs:
       with:
         targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android
     
-    - name: Setup Android environment
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+    
+    - name: Setup Android SDK
       uses: android-actions/setup-android@v3
       with:
         cmdline-tools-version: '9477386'
     
-    - name: Install Android NDK
+    - name: Install Android NDK and build tools
       run: |
         $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "ndk;25.1.8937393"
         $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "platforms;android-33"
@@ -45,6 +51,9 @@ jobs:
         echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
         echo "ANDROID_SDK_ROOT=$ANDROID_HOME" >> $GITHUB_ENV
     
+    - name: Check Tauri CLI
+      run: npx @tauri-apps/cli --version
+    
     - name: Initialize Android project
       run: npx @tauri-apps/cli android init
     
@@ -54,20 +63,21 @@ jobs:
     - name: List generated files
       run: |
         echo "Checking for APK files..."
-        find src-tauri/target -name "*.apk" -type f | while read file; do
-          echo "Found APK: $file"
-          ls -la "$file"
-        done
+        find . -name "*.apk" -type f 2>/dev/null | head -20
     
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
       with:
         name: yield-showcase-apk
-        path: src-tauri/target/android/apk/release/*.apk
+        path: |
+          src-tauri/target/android/apk/release/*.apk
+          src-tauri/target/android/apk/debug/*.apk
     
     - name: Create GitHub Release
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
       with:
-        files: src-tauri/target/android/apk/release/*.apk
+        files: |
+          src-tauri/target/android/apk/release/*.apk
+          src-tauri/target/android/apk/debug/*.apk
         generate_release_notes: true
