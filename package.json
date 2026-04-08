@@ -1,0 +1,27 @@
+{
+  "name": "yield-showcase-app",
+  "version": "1.0.0",
+  "description": "A Tauri app for showcasing daily investment yield with screenshot sharing",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "tauri": "tauri"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "html2canvas": "^1.4.1",
+    "date-fns": "^2.30.0",
+    "styled-components": "^6.1.0"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^1.5.0",
+    "@vitejs/plugin-react": "^4.0.0",
+    "vite": "^4.4.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "typescript": "^5.0.0"
+  }
+}
