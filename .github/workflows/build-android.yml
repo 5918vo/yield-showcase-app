@@ -36,36 +36,56 @@ jobs:
     
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
-      with:
-        cmdline-tools-version: '9477386'
     
-    - name: Install Android NDK and build tools
+    - name: Install specific Android NDK
       run: |
+        # Install NDK 25.1.8937393 (recommended for Tauri)
         $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "ndk;25.1.8937393"
         $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "platforms;android-33"
         $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "build-tools;33.0.0"
+        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "platform-tools"
     
     - name: Configure environment variables
       run: |
         echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/25.1.8937393" >> $GITHUB_ENV
         echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
         echo "ANDROID_SDK_ROOT=$ANDROID_HOME" >> $GITHUB_ENV
+        echo "PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH" >> $GITHUB_ENV
+    
+    - name: Debug Android environment
+      run: |
+        echo "=== Android Environment Debug ==="
+        echo "ANDROID_HOME: $ANDROID_HOME"
+        echo "ANDROID_SDK_ROOT: $ANDROID_SDK_ROOT"
+        echo "ANDROID_NDK_HOME: $ANDROID_NDK_HOME"
+        echo "JAVA_HOME: $JAVA_HOME"
+        echo ""
+        echo "=== Installed packages ==="
+        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list 2>/dev/null | grep -E "(ndk|platform|build-tools)" || true
     
     - name: Check Tauri CLI
       run: npx @tauri-apps/cli --version
     
-    - name: Initialize Android project
-      run: npx @tauri-apps/cli android init
+    - name: Try Tauri Android init with debug
+      run: |
+        echo "=== Trying Tauri Android init ==="
+        npx @tauri-apps/cli android init --verbose || echo "Init failed, continuing..."
     
     - name: Build Android APK
-      run: npx @tauri-apps/cli android build
+      run: |
+        echo "=== Building Android APK ==="
+        npx @tauri-apps/cli android build --verbose
     
     - name: List generated files
       run: |
-        echo "Checking for APK files..."
-        find . -name "*.apk" -type f 2>/dev/null | head -20
+        echo "=== Checking for generated files ==="
+        find . -name "*.apk" -type f 2>/dev/null | head -20 || echo "No APK files found"
+        echo ""
+        echo "=== Checking target directory ==="
+        ls -la src-tauri/target/ 2>/dev/null || echo "No target directory"
     
     - name: Upload APK artifact
+      if: success()
       uses: actions/upload-artifact@v4
       with:
         name: yield-showcase-apk
@@ -74,7 +94,7 @@ jobs:
           src-tauri/target/android/apk/debug/*.apk
     
     - name: Create GitHub Release
-      if: startsWith(github.ref, 'refs/tags/')
+      if: success() && startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
       with:
         files: |
