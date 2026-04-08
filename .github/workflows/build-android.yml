@@ -23,11 +23,9 @@ jobs:
     - name: Install dependencies
       run: npm ci
     
-    - name: Install Tauri CLI
-      run: npm install @tauri-apps/cli
-    
-    - name: Setup Android environment
+    - name: Install Tauri CLI and Android dependencies
       run: |
+        npm install @tauri-apps/cli
         sudo apt-get update
         sudo apt-get install -y \
           libwebkit2gtk-4.0-dev \
@@ -39,31 +37,18 @@ jobs:
           libgtk-3-dev \
           libayatana-appindicator3-dev \
           librsvg2-dev
-        
-        # Install Android SDK
-        wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip
-        mkdir -p $HOME/android-sdk/cmdline-tools
-        unzip -q commandlinetools-linux-9477386_latest.zip -d $HOME/android-sdk/cmdline-tools
-        mv $HOME/android-sdk/cmdline-tools/cmdline-tools $HOME/android-sdk/cmdline-tools/latest
-        
-        # Set environment variables
-        echo "ANDROID_SDK_ROOT=$HOME/android-sdk" >> $GITHUB_ENV
-        echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
-        echo "$HOME/android-sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
-        echo "$HOME/android-sdk/platform-tools" >> $GITHUB_PATH
-        
-        # Accept licenses
-        yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null 2>&1
-        
-        # Install required Android packages
-        $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager \
-          "platform-tools" \
-          "platforms;android-33" \
-          "build-tools;33.0.0" \
-          "ndk;25.1.8937393"
+    
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+      with:
+        cmdline-tools-version: '9477386'
     
     - name: Build for Android
       run: |
+        # Initialize Android project if needed
+        npx @tauri-apps/cli android init || true
+        
+        # Build Android APK
         npm run tauri android build
         
         # Create release directory
