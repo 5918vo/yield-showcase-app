@@ -72,12 +72,6 @@
         "certificateThumbprint": null,
         "digestAlgorithm": "sha256",
         "timestampUrl": ""
-      },
-      "android": {
-        "compileSdkVersion": 33,
-        "minSdkVersion": 21,
-        "targetSdkVersion": 33,
-        "packageName": "com.yieldshowcase.app"
       }
     },
     "security": {

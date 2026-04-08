@@ -220,17 +220,17 @@ const App: React.FC = () => {
         link.href = canvas.toDataURL('image/png');
         link.click();
         
-        // 如果是Tauri环境，可以保存到本地
-        if (window.__TAURI__) {
-          const { writeBinaryFile, BaseDirectory } = await import('@tauri-apps/api/fs');
-          const { appDir } = await import('@tauri-apps/api/path');
-          
-          const dir = await appDir();
-          const fileName = `yield-showcase-${format(new Date(), 'yyyy-MM-dd-HHmmss')}.png`;
-          const arrayBuffer = await canvas.toBlob().then(blob => blob.arrayBuffer());
-          
-          await writeBinaryFile(fileName, new Uint8Array(arrayBuffer), { dir: BaseDirectory.App });
-        }
+        // 如果是Tauri环境，可以保存到本地（在Tauri应用中启用）
+        // if (window.__TAURI__) {
+        //   const { writeBinaryFile, BaseDirectory } = await import('@tauri-apps/api/fs');
+        //   const { appDir } = await import('@tauri-apps/api/path');
+        //   
+        //   const dir = await appDir();
+        //   const fileName = `yield-showcase-${format(new Date(), 'yyyy-MM-dd-HHmmss')}.png`;
+        //   const arrayBuffer = await canvas.toBlob().then(blob => blob.arrayBuffer());
+        //   
+        //   await writeBinaryFile(fileName, new Uint8Array(arrayBuffer), { dir: BaseDirectory.App });
+        // }
       }
     } catch (error) {
       console.error('Error generating image:', error);
