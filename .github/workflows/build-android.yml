@@ -45,11 +45,14 @@ jobs:
         echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
         echo "ANDROID_SDK_ROOT=$ANDROID_HOME" >> $GITHUB_ENV
     
-    - name: Initialize Android project
+    - name: Check Tauri version
+      run: npx @tauri-apps/cli --version
+    
+    - name: Initialize Android project (Tauri 2.x)
       run: npx @tauri-apps/cli android init
     
-    - name: Build Android APK
-      run: npm run tauri android build
+    - name: Build Android APK (Tauri 2.x)
+      run: npx @tauri-apps/cli android build --release
     
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
