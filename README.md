@@ -76,12 +76,18 @@ git push origin v1.0.0
 
 ## 🚀 GitHub Actions 构建流程
 
-项目配置了自动构建工作流，当推送tag时会：
+项目已配置自动构建工作流（`.github/workflows/build-android.yml`），当推送tag时会：
 1. 设置Node.js环境
 2. 安装Tauri CLI和Android依赖
 3. 构建Android APK
 4. 上传APK到Artifacts
 5. 创建GitHub Release并附加APK
+
+### ⚠️ 重要：GitHub Token权限
+要使GitHub Actions正常工作，需要确保你的GitHub Personal Access Token具有`workflow`权限。如果没有此权限，工作流文件将无法自动推送。
+
+### 手动添加工作流文件
+如果遇到权限问题，可以手动创建`.github/workflows/build-android.yml`文件，内容参考项目中的同名文件。
 
 ## 📱 APK下载
 
