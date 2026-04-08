@@ -33,17 +33,7 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "category": "Finance"
-  },
-  "tauri": {
-    "allowlist": {
-      "all": false
-    },
-    "bundle": {
-      "android": {
-        "icon": "icons/icon.png"
-      }
-    },
+    "category": "Finance",
     "android": {
       "packageName": "com.yieldshowcase.app",
       "minSdkVersion": 21,
