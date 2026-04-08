@@ -26,43 +26,43 @@ jobs:
     - name: Install Tauri CLI
       run: npm install @tauri-apps/cli
     
-    - name: Setup Rust
+    - name: Install Rust
       uses: dtolnay/rust-toolchain@stable
       with:
         targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android
     
-    - name: Setup Android SDK
+    - name: Install Android SDK
       uses: android-actions/setup-android@v3
       with:
         cmdline-tools-version: '9477386'
     
-    - name: Build for Android
+    - name: Install Android NDK and build tools
       run: |
-        # Initialize Android project
-        npx @tauri-apps/cli android init
-        
-        # Build Android APK
-        npm run tauri android build
-        
-        # Create release directory
-        mkdir -p release
-        
-        # Copy APK to release directory
-        cp src-tauri/target/android/apk/release/*.apk release/
-        
-        # List files for debugging
-        echo "Build artifacts:"
-        ls -la release/
+        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "ndk;25.1.8937393"
+        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "platforms;android-33"
+        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "build-tools;33.0.0"
+    
+    - name: Configure Android environment
+      run: |
+        echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/25.1.8937393" >> $GITHUB_ENV
+        echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
+        echo "ANDROID_SDK_ROOT=$ANDROID_HOME" >> $GITHUB_ENV
+    
+    - name: Initialize Android project
+      run: npx @tauri-apps/cli android init
+    
+    - name: Build Android APK
+      run: npm run tauri android build
     
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
       with:
         name: yield-showcase-apk
-        path: release/*.apk
+        path: src-tauri/target/android/apk/release/*.apk
     
     - name: Create GitHub Release
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
       with:
-        files: release/*.apk
+        files: src-tauri/target/android/apk/release/*.apk
         generate_release_notes: true
